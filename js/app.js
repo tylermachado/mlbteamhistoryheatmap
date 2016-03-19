@@ -17,15 +17,14 @@ function diffPush(a, b, c) {
 	}
 }
 
-for (y=2015; y<2016; y++) {
-	year = y.toString();
+
 	for (m=3; m<11; m++) {
 		month = m.toString();
 		if (month.length == 1) { month = "0" + month};
 		for (d=1; d<32; d++) {
 			day = d.toString();
 			if (day.length == 1) { day = "0" + day};
-			$.getJSON( "http://mlb.mlb.com/gdcross/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day + "/master_scoreboard.json", function( json ) {
+			$.getJSON( "http://mlb.mlb.com/gdcross/components/game/mlb/year_" + 2015 + "/month_" + month + "/day_" + day + "/master_scoreboard.json", function( json ) {
 			  var array = json.data.games.game;
 			  for (i=0; i<array.length; i++) {
 			  	if (array[i].home_name_abbrev == "BOS" && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
@@ -43,7 +42,7 @@ for (y=2015; y<2016; y++) {
 			});
 		}
 	}
-}
+
 
 var color = d3.scale.linear()
   .domain([-10, 0, 10])
