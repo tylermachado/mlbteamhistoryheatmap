@@ -69,10 +69,11 @@ function generateGrid() {
 			.enter().append("rect")
 			.attr("width",square)
 			.attr("height",square)
-			.attr("data-game",function(d, i) { return (i+1) } )
-			.attr("data-diff",function(d, i) { return d.diff } )
+
 			.attr("x", function(d, i) { return (i % n) * (square+squarepadding) } )
 			.attr("y", function(d, i) { return Math.floor(i/n) * (square+squarepadding) } )
-			.style("fill", function(d, i) { return color(d.diff) } );
+			.style("fill", function(d, i) { return color(d.diff) } )
+			.attr("data-game",function(d, i) { return (i+1) } )
+			.attr("data-diff",function(d, i) { return d.diff } );
 }
 
