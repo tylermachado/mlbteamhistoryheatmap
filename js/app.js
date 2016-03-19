@@ -6,6 +6,13 @@ var	width = 1620,
 
 var differentials = [];
 
+$("select").change(function() {
+	$("svg").empty();
+	var selected = $("select").val().toString();
+	console.log(selected);
+  	getData(selected);
+});
+
 function diffPush(a, b, c) {
 	var obj = new Object();
 	obj["diff"] = parseInt(a);
@@ -17,7 +24,7 @@ function diffPush(a, b, c) {
 	}
 }
 
-
+function getData(team) {
 	for (m=3; m<11; m++) {
 		month = m.toString();
 		if (month.length == 1) { month = "0" + month};
@@ -27,12 +34,12 @@ function diffPush(a, b, c) {
 			$.getJSON( "http://mlb.mlb.com/gdcross/components/game/mlb/year_" + 2015 + "/month_" + month + "/day_" + day + "/master_scoreboard.json", function( json ) {
 			  var array = json.data.games.game;
 			  for (i=0; i<array.length; i++) {
-			  	if (array[i].home_name_abbrev == "BOS" && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
+			  	if (array[i].home_name_abbrev == team && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
 			  		var diff = array[i].linescore.r.home - array[i].linescore.r.away;
 			  		var gameIndex = (parseInt(array[i].home_win) + parseInt(array[i].home_loss));
 			  		diffPush(diff, json.data.games.day, gameIndex-1);
 
-			  	} else if (array[i].away_name_abbrev == "BOS" && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
+			  	} else if (array[i].away_name_abbrev == team && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
 			  		var diff = array[i].linescore.r.away - array[i].linescore.r.home;
 			  		var gameIndex = (parseInt(array[i].away_win) + parseInt(array[i].away_loss));
 			  		diffPush(diff, json.data.games.day, gameIndex-1);
@@ -42,6 +49,9 @@ function diffPush(a, b, c) {
 			});
 		}
 	}
+}
+
+
 
 
 var color = d3.scale.linear()
