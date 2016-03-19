@@ -1,43 +1,69 @@
-function getRandomInt (min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-var	width = 100,
+var	width = 1620,
 	height = 1000
 	square = 10,
-	squarepadding = 5,
-	n = 5;
+	squarepadding = 0,
+	n = 162;
 
-var data = [];
+var differentials = [];
+
+function diffPush(a, b, c) {
+	var obj = new Object();
+	obj["diff"] = parseInt(a);
+	obj["day"] = b;
+	differentials[c] = obj;
+	if (c == 161) {
+		console.log(differentials);
+		generateGrid();
+	}
+}
+
+for (y=2015; y<2016; y++) {
+	year = y.toString();
+	for (m=3; m<11; m++) {
+		month = m.toString();
+		if (month.length == 1) { month = "0" + month};
+		for (d=1; d<32; d++) {
+			day = d.toString();
+			if (day.length == 1) { day = "0" + day};
+			$.getJSON( "http://mlb.mlb.com/gdcross/components/game/mlb/year_" + year + "/month_" + month + "/day_" + day + "/master_scoreboard.json", function( json ) {
+			  var array = json.data.games.game;
+			  for (i=0; i<array.length; i++) {
+			  	if (array[i].home_name_abbrev == "BOS" && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
+			  		var diff = array[i].linescore.r.home - array[i].linescore.r.away;
+			  		var gameIndex = (parseInt(array[i].home_win) + parseInt(array[i].home_loss));
+			  		diffPush(diff, json.data.games.day, gameIndex-1);
+
+			  	} else if (array[i].away_name_abbrev == "BOS" && array[i].game_type == "R" && (array[i].status.status == "Completed Early" || array[i].status.status == "Final")) {
+			  		var diff = array[i].linescore.r.away - array[i].linescore.r.home;
+			  		var gameIndex = (parseInt(array[i].away_win) + parseInt(array[i].away_loss));
+			  		diffPush(diff, json.data.games.day, gameIndex-1);
+
+			  	}
+			  }
+			});
+		}
+	}
+}
 
 var color = d3.scale.linear()
-  .domain([-4, 0, 4])
+  .domain([-10, 0, 10])
   .range(["#ca0020","#f7f7f7","#0571b0"]);
 
 var svg = d3.select("#chart").append("svg")
 	.attr("width", width)
 	.attr("height", height);
 
-for (i=0; i<162; i++) {
-	var obj = new Object();
-	obj["game"] = i;
-	obj["score"] = getRandomInt(-4, 4);
-	if (obj["score"] == 0) {
-		obj["score"] = 1;
-	}
-	data.push(obj);
-}
 
 function generateGrid() {
     var squares = svg.selectAll("rect")
-			.data(data)
+			.data(differentials)
 			.enter().append("rect")
 			.attr("width",square)
 			.attr("height",square)
-			.attr("id",function(d) { console.log(d);return "game" + (d.game+1) } )
-			.attr("x", function(d) { return (d.game % n) * (square+squarepadding) } )
-			.attr("y", function(d) { return Math.floor(d.game/n) * (square+squarepadding) } )
-			.style("fill", function(d) { return color(d.score) } );
+			.attr("data-game",function(d, i) { return (i+1) } )
+			.attr("data-diff",function(d, i) { return d.diff } )
+			.attr("x", function(d, i) { return (i % n) * (square+squarepadding) } )
+			.attr("y", function(d, i) { return Math.floor(i/n) * (square+squarepadding) } )
+			.style("fill", function(d, i) { return color(d.diff) } );
 }
 
-generateGrid();
