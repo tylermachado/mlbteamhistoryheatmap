@@ -1,8 +1,8 @@
-var	width = 1620,
-	height = 1000
-	square = 10,
-	squarepadding = 0,
-	n = 162;
+var	width = window.innerWidth,
+	n = 162,
+	height = 1000,
+	square = width/n,
+	squarepadding = 0;
 
 var differentials = [];
 
